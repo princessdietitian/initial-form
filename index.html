@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>首次諮詢表單 | 公主營養師</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans TC',sans-serif;background:#F5F0E8;color:#3a3228;min-height:100vh}
+
+/* ── CONFIG 區塊 (你只需要改這裡) ── */
+/* 第一階段：直接連 Airtable */
+/* 第二階段：把 ENDPOINT 換成 Make.com webhook 網址即可 */
+
+/* ── HEADER ── */
+.header{background:#4a5a2a;padding:20px;text-align:center}
+.header-logo{font-size:12px;color:#a8c870;letter-spacing:3px;margin-bottom:6px}
+.header-title{font-size:20px;font-weight:700;color:white}
+.header-sub{font-size:13px;color:#c8d8a0;margin-top:4px}
+
+/* ── PROGRESS ── */
+.progress-wrap{background:white;border-bottom:1px solid #e0d8c0;padding:12px 20px;position:sticky;top:0;z-index:100}
+.progress-steps{display:flex;justify-content:center;gap:8px;max-width:480px;margin:0 auto}
+.step{flex:1;text-align:center;font-size:11px;color:#b0a898}
+.step.active{color:#4a5a2a;font-weight:600}
+.step.done{color:#7a9a3a}
+.step-dot{width:24px;height:24px;border-radius:50%;background:#e0d8c0;display:flex;align-items:center;justify-content:center;margin:0 auto 4px;font-size:11px;color:#b0a898}
+.step.active .step-dot{background:#4a5a2a;color:white}
+.step.done .step-dot{background:#7a9a3a;color:white}
+.progress-bar{height:3px;background:#e0d8c0;border-radius:2px;max-width:480px;margin:8px auto 0}
+.progress-fill{height:3px;background:#4a5a2a;border-radius:2px;transition:width .4s}
+
+/* ── PAGES ── */
+.page{display:none;max-width:480px;margin:0 auto;padding:24px 20px 40px}
+.page.active{display:block}
+
+/* ── SECTION ── */
+.section-title{font-size:16px;font-weight:700;color:#4a5a2a;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.section-desc{font-size:13px;color:#7a6e5f;margin-bottom:20px;line-height:1.6}
+.field-group{margin-bottom:20px}
+.field-label{font-size:14px;font-weight:500;color:#3a3228;margin-bottom:8px;display:block}
+.field-label span{font-size:12px;color:#a09080;font-weight:400;margin-left:4px}
+.field-input{width:100%;padding:12px 14px;border:1.5px solid #d0c8b0;border-radius:10px;background:white;font-size:15px;color:#3a3228;outline:none;font-family:inherit;transition:border-color .2s}
+.field-input:focus{border-color:#4a5a2a}
+.field-textarea{width:100%;padding:12px 14px;border:1.5px solid #d0c8b0;border-radius:10px;background:white;font-size:14px;color:#3a3228;outline:none;font-family:inherit;resize:vertical;min-height:80px;transition:border-color .2s}
+.field-textarea:focus{border-color:#4a5a2a}
+.field-select{width:100%;padding:12px 14px;border:1.5px solid #d0c8b0;border-radius:10px;background:white;font-size:15px;color:#3a3228;outline:none;font-family:inherit;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a6e5f' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.field-select:focus{border-color:#4a5a2a}
+
+/* ── SYMPTOM SCALE ── */
+.symptom-item{background:white;border-radius:12px;padding:14px;margin-bottom:10px;border:1.5px solid #e0d8c0}
+.symptom-name{font-size:14px;font-weight:500;color:#3a3228;margin-bottom:10px}
+.scale-opts{display:flex;gap:4px}
+.scale-opt{flex:1;text-align:center}
+.scale-opt input{display:none}
+.scale-opt label{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 2px;border-radius:8px;transition:all .15s}
+.scale-opt label .dot{width:28px;height:28px;border-radius:50%;border:1.5px solid #d0c8b0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#b0a898;transition:all .15s}
+.scale-opt label .lbl{font-size:9px;color:#b0a898;line-height:1.2;text-align:center}
+.scale-opt input:checked + label .dot{background:#4a5a2a;border-color:#4a5a2a;color:white}
+.scale-opt input:checked + label .lbl{color:#4a5a2a;font-weight:600}
+.scale-opt:nth-child(2) label .dot{border-color:#c8b890}
+.scale-opt:nth-child(3) label .dot{border-color:#c09060}
+.scale-opt:nth-child(4) label .dot{border-color:#b07050}
+.scale-opt:nth-child(5) label .dot{border-color:#a05040}
+.scale-opt:nth-child(2) input:checked + label .dot{background:#8a7a4a}
+.scale-opt:nth-child(3) input:checked + label .dot{background:#9a7030}
+.scale-opt:nth-child(4) input:checked + label .dot{background:#8a5030}
+.scale-opt:nth-child(5) input:checked + label .dot{background:#7a3020}
+
+.scale-legend{display:flex;justify-content:space-between;font-size:10px;color:#b0a898;margin-bottom:8px;padding:0 2px}
+
+/* ── NAV BUTTONS ── */
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:28px;gap:12px}
+.btn-back{padding:12px 24px;border-radius:99px;border:1.5px solid #d0c8b0;background:white;color:#5a5040;font-size:14px;cursor:pointer;font-family:inherit}
+.btn-next{flex:1;padding:14px;border-radius:99px;border:none;background:#4a5a2a;color:white;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.5px}
+.btn-next:hover{background:#3a4a1a}
+.btn-next:disabled{opacity:.5;cursor:not-allowed}
+
+/* ── REQUIRED NOTICE ── */
+.required-note{font-size:12px;color:#a09080;margin-bottom:20px}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:#e8e0d0;margin:20px 0}
+
+/* ── SUCCESS ── */
+#successPage{display:none;max-width:480px;margin:0 auto;padding:60px 20px;text-align:center}
+.success-icon{font-size:56px;margin-bottom:16px}
+.success-title{font-size:22px;font-weight:700;color:#4a5a2a;margin-bottom:10px}
+.success-desc{font-size:15px;color:#7a6e5f;line-height:1.7}
+
+/* ── ERROR ── */
+.error-msg{background:#fce8e8;border:1px solid #e0a0a0;border-radius:10px;padding:12px 14px;font-size:13px;color:#8a3030;margin-top:12px;display:none}
+    
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] { -moz-appearance: textfield; }
+
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════
+     ⚙️  設定區（只需改這裡）
+     ════════════════════════════════ -->
+<script>
+// 第一階段：直接連 Airtable
+// 第二階段：換成 Make.com Webhook 網址即可（只改 ENDPOINT 這一行）
+const AIRTABLE_TOKEN ='patPVchte5858T5VU.aceb2a7b9e7d9e73d63a02233d7c8642b1e632c48f0f55606c22b8df38e007ce'
+const BASE_ID       = 'appKLJK7eiXFYd8rN'    // 換成你的 Base ID
+const TABLE_ID      = 'tblyTLVgo3uZR9wWy'    // 換成初診資料的 Table ID
+const ENDPOINT      = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}`
+// 第二階段換成：
+// const ENDPOINT = 'https://hook.eu2.make.com/xxxx'
+</script>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-logo">公主營養師</div>
+  <div class="header-title">首次諮詢表單</div>
+  <div class="header-sub">請詳盡填寫，幫助我們更了解你的狀況</div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-wrap">
+  <div class="progress-steps">
+    <div class="step active" id="step1"><div class="step-dot">1</div>基本資料</div>
+    <div class="step" id="step2"><div class="step-dot">2</div>生活習慣</div>
+    <div class="step" id="step3"><div class="step-dot">3</div>身體症狀</div>
+    <div class="step" id="step4"><div class="step-dot">4</div>飲食補充</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:25%"></div></div>
+</div>
+
+<!-- ═══ PAGE 1：基本資料 ═══ -->
+<div class="page active" id="page1">
+  <div class="section-title">👤 基本資料</div>
+  <p class="section-desc">請填寫你的基本個人資訊</p>
+  <p class="required-note">* 為必填欄位</p>
+
+  <div class="field-group">
+    <label class="field-label">你的名字 *</label>
+    <input class="field-input" type="text" id="f_name" placeholder="請輸入姓名">
+  </div>
+  <div class="field-group">
+    <label class="field-label">手機號碼 * <span>（作為登入識別碼）</span></label>
+    <input class="field-input" type="tel" id="f_phone" placeholder="09xxxxxxxx">
+  </div>
+  <div class="field-group">
+    <label class="field-label">進入計畫的主要動機/目標？</label>
+    <textarea class="field-textarea" id="f_events" placeholder="可以更具體唷！例如減重是為了想要⋯"></textarea>
+  </div>
+
+  <div class="nav-row">
+    <div></div>
+    <button class="btn-next" onclick="goTo(2)">下一步 →</button>
+  </div>
+  <div class="error-msg" id="err1">請填寫姓名與手機號碼</div>
+</div>
+
+<!-- ═══ PAGE 2：生活習慣 ═══ -->
+<div class="page" id="page2">
+  <div class="section-title">🌿 生活習慣</div>
+  <p class="section-desc">了解你日常的生活狀態</p>
+
+  <div class="field-group">
+    <label class="field-label">過去三個月，你有經歷任何重大事件與改變嗎？</label>
+    <textarea class="field-textarea" id="f_events" placeholder="例如：換工作、搬家、家庭變故…"></textarea>
+  </div>
+  <div class="field-group">
+    <label class="field-label">平均每日睡眠時間（小時）</label>
+    <input class="field-input" type="number" id="f_sleep" placeholder="例如：7" min="0" max="24">
+  </div>
+  <div class="field-group">
+    <label class="field-label">平均每週飲酒量</label>
+    <select class="field-select" id="f_alcohol">
+      <option value="">請選擇</option>
+      <option>完全不喝</option>
+      <option>1–2 杯/週</option>
+      <option>3–5 杯/週</option>
+      <option>幾乎每天</option>
+    </select>
+  </div>
+  <div class="field-group">
+    <label class="field-label">平均每週外食次數</label>
+    <select class="field-select" id="f_eating_out">
+      <option value="">請選擇</option>
+      <option>0–7 次</option>
+      <option>8–14 次</option>
+      <option>15–20 次</option>
+      <option>只能外食</option>
+    </select>
+  </div>
+  <div class="field-group">
+    <label class="field-label">平均每週運動習慣</label>
+    <select class="field-select" id="f_exercise">
+      <option value="">請選擇</option>
+      <option>幾乎不運動</option>
+      <option>1–2 次/週</option>
+      <option>3–4 次/週</option>
+      <option>5 次以上/週</option>
+    </select>
+  </div>
+  <div class="field-group">
+    <label class="field-label">平時有正念思考的習慣嗎？</label>
+    <select class="field-select" id="f_mindfulness">
+      <option value="">請選擇</option>
+      <option>沒有</option>
+      <option>偶爾（冥想、深呼吸）</option>
+      <option>固定練習</option>
+    </select>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn-back" onclick="goTo(1)">← 上一步</button>
+    <button class="btn-next" onclick="goTo(3)">下一步 →</button>
+  </div>
+</div>
+
+<!-- ═══ PAGE 3：身體症狀 ═══ -->
+<div class="page" id="page3">
+  <div class="section-title">🫀 身體症狀評估</div>
+  <p class="section-desc">請根據過去 1 個月的感受評分</p>
+
+  <!-- 飲食與體態 -->
+  <div class="section-title" style="font-size:14px;margin-bottom:12px">🍽️ 飲食與體態</div>
+  <div id="symptoms_diet"></div>
+  <div class="divider"></div>
+
+  <!-- 消化與代謝 -->
+  <div class="section-title" style="font-size:14px;margin-bottom:12px">🥗 消化與代謝</div>
+  <div id="symptoms_digest"></div>
+  <div class="divider"></div>
+
+  <!-- 睡眠與精神 -->
+  <div class="section-title" style="font-size:14px;margin-bottom:12px">😴 睡眠與精神</div>
+  <div id="symptoms_sleep"></div>
+  <div class="divider"></div>
+
+  <!-- 肌膚與免疫 -->
+  <div class="section-title" style="font-size:14px;margin-bottom:12px">✨ 肌膚與免疫</div>
+  <div id="symptoms_skin"></div>
+  <div class="divider"></div>
+
+  <!-- 女性健康 -->
+  <div class="section-title" style="font-size:14px;margin-bottom:12px">🌸 女性健康</div>
+  <div id="symptoms_female"></div>
+
+  <div class="field-group" style="margin-top:16px">
+    <label class="field-label">其他症狀補充 </label>
+    <textarea class="field-textarea" id="f_other_symptoms" placeholder="任何未在上述問題呈現的症狀…"></textarea>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn-back" onclick="goTo(2)">← 上一步</button>
+    <button class="btn-next" onclick="goTo(4)">下一步 →</button>
+  </div>
+</div>
+
+<!-- ═══ PAGE 4：飲食補充 ═══ -->
+<div class="page" id="page4">
+  <div class="section-title">🥗 飲食與補充品</div>
+  <p class="section-desc">告訴我們你的飲食習慣與保健品使用情況</p>
+
+  <div class="field-group">
+    <label class="field-label">平均每日飲水量（mL）</label>
+    <input class="field-input" type="number" id="f_water" placeholder="例如：1500">
+  </div>
+  <div class="field-group">
+    <label class="field-label">平時飲食樣貌</label>
+    <textarea class="field-textarea" id="f_diet" placeholder="請描述早餐、午餐、點心、晚餐、宵夜、飲料的大概內容…" style="min-height:100px"></textarea>
+  </div>
+  <div class="field-group">
+    <label class="field-label">目前使用的藥品、保健品、蛋白粉</label>
+    <textarea class="field-textarea" id="f_supplements" placeholder="請列出品項與使用方式…"></textarea>
+  </div>
+  <div class="field-group">
+    <label class="field-label">其他補充說明</label>
+    <textarea class="field-textarea" id="f_notes" placeholder="任何想補充的飲食習慣或說明…"></textarea>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn-back" onclick="goTo(3)">← 上一步</button>
+    <button class="btn-next" id="submitBtn" onclick="submitForm()">送出表單✔︎</button>
+  </div>
+  <div class="error-msg" id="errSubmit">送出失敗，請檢查網路後再試</div>
+</div>
+
+<!-- SUCCESS -->
+<div id="successPage">
+  <div class="success-icon">🌿</div>
+  <div class="success-title">感謝你的填寫！</div>
+  <p class="success-desc">我們已收到你的初診資料<br>營養師會在諮詢前仔細閱讀<br><br>如有任何問題請透過 LINE 聯繫我們</p>
+</div>
+
+<script>
+// ══ 症狀題目定義 ══
+const SYMPTOMS = {
+  diet: [
+    {id:'飲｜體重過重', label:'體重過重'},
+    {id:'飲｜體重過輕', label:'體重過輕'},
+    {id:'飲｜暴食/吃過多**', label:'暴食／吃過多'},
+    {id:'飲｜渴望甜食*', label:'渴望甜食'},
+    {id:'飲｜渴望零食*', label:'渴望零食'},
+    {id:'飲｜依賴咖啡因**', label:'依賴咖啡因'},
+    {id:'飲｜微波食品/加工品**', label:'習慣微波食品／加工品'},
+  ],
+  digest: [
+    {id:'消｜脹氣**', label:'脹氣'},
+    {id:'消｜胃酸多/胃食道逆流', label:'胃酸多／胃食道逆流'},
+    {id:'消｜噁心/想吐', label:'噁心／想吐'},
+    {id:'消｜便秘**', label:'便秘'},
+    {id:'消｜拉肚子', label:'拉肚子'},
+    {id:'消｜排氣', label:'排氣'},
+    {id:'消｜水腫**', label:'水腫'},
+    {id:'消｜頻尿/憋尿困難', label:'頻尿／憋尿困難'},
+  ],
+  sleep: [
+    {id:'睡｜精神亢奮', label:'精神亢奮（都不會累）'},
+    {id:'睡｜疲勞/睡醒還是累**', label:'疲勞／睡醒還是累'},
+    {id:'睡｜需要午睡', label:'需要午睡'},
+    {id:'睡｜難入眠', label:'難入眠'},
+    {id:'睡｜半夜醒來(睡眠中斷)', label:'半夜醒來（睡眠中斷）'},
+    {id:'睡｜打呼/睡眠呼吸中止', label:'打呼／睡眠呼吸中止'},
+    {id:'睡｜心情低落*', label:'心情低落'},
+    {id:'睡｜覺得被工作消耗殆盡*', label:'覺得被工作消耗殆盡'},
+    {id:'睡｜不耐煩/愛生氣**', label:'不耐煩／愛生氣'},
+  ],
+  skin: [
+    {id:'肌｜痘痘/粉刺', label:'痘痘／粉刺'},
+    {id:'肌｜皮膚乾燥/紅疹', label:'皮膚乾燥／紅疹'},
+    {id:'肌｜落髮', label:'落髮'},
+    {id:'肌｜過敏', label:'過敏'},
+    {id:'肌｜鼻塞', label:'鼻塞'},
+    {id:'肌｜流鼻水', label:'流鼻水'},
+    {id:'肌｜喉嚨有痰', label:'喉嚨有痰'},
+    {id:'肌｜牙齦/喉嚨發炎', label:'牙齦／喉嚨發炎'},
+    {id:'肌｜嘴破/潰瘍', label:'嘴破／潰瘍'},
+  ],
+  female: [
+    {id:'女｜經期不穩定', label:'經期不穩定'},
+    {id:'女｜週期間隔>30天', label:'週期間隔 > 30 天'},
+    {id:'女｜經前症候群', label:'經前症候群'},
+    {id:'女｜經期情緒低落', label:'經期情緒低落'},
+    {id:'女｜經期不適', label:'經期不適'},
+    {id:'女｜經期服用止痛藥', label:'經期服用止痛藥'},
+    {id:'女｜經期血塊大、血液顏色深', label:'經期血塊大、血液顏色深'},
+  ],
+};
+
+const SCALE_LABELS = ['幾乎\n沒有','有時\n不明顯','有時\n蠻嚴重','經常\n不明顯','經常\n蠻嚴重'];
+
+// ══ 建立症狀選項 ══
+function buildSymptoms(group, containerId) {
+  const container = document.getElementById(containerId);
+  SYMPTOMS[group].forEach(s => {
+    const div = document.createElement('div');
+    div.className = 'symptom-item';
+    div.innerHTML = `<div class="symptom-name">${s.label}</div>
+      <div class="scale-opts">
+        ${[0,1,2,3,4].map(v=>`
+          <div class="scale-opt">
+            <input type="radio" name="${s.id}" id="${s.id}_${v}" value="${v}">
+            <label for="${s.id}_${v}">
+              <div class="dot">${v}</div>
+              <div class="lbl">${SCALE_LABELS[v].replace('\n','<br>')}</div>
+            </label>
+          </div>`).join('')}
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+buildSymptoms('diet','symptoms_diet');
+buildSymptoms('digest','symptoms_digest');
+buildSymptoms('sleep','symptoms_sleep');
+buildSymptoms('skin','symptoms_skin');
+buildSymptoms('female','symptoms_female');
+
+// ══ 頁面切換 ══
+let curPage = 1;
+function goTo(n) {
+  // 驗證
+  if(n > curPage) {
+    if(curPage === 1) {
+      const name = document.getElementById('f_name').value.trim();
+      const phone = document.getElementById('f_phone').value.trim();
+      if(!name || !phone) {
+        document.getElementById('err1').style.display = 'block';
+        return;
+      }
+      document.getElementById('err1').style.display = 'none';
+    }
+  }
+  document.getElementById(`page${curPage}`).classList.remove('active');
+  document.getElementById(`page${n}`).classList.add('active');
+  curPage = n;
+  // 更新進度
+  const pct = [25,50,75,100][n-1];
+  document.getElementById('progressFill').style.width = pct + '%';
+  ['step1','step2','step3','step4'].forEach((id,i) => {
+    const el = document.getElementById(id);
+    el.className = 'step' + (i+1 < n ? ' done' : i+1 === n ? ' active' : '');
+    el.querySelector('.step-dot').textContent = i+1 < n ? '✓' : i+1;
+  });
+  window.scrollTo(0,0);
+}
+
+// ══ 取得症狀分數 ══
+function getSymptomValue(name) {
+  const checked = document.querySelector(`input[name="${name}"]:checked`);
+  return checked ? parseInt(checked.value) : null;
+}
+
+// ══ 送出表單 ══
+async function submitForm() {
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = '送出中…';
+
+  // 收集所有症狀
+  const fields = {
+    '你的名字': document.getElementById('f_name').value.trim(),
+    '用戶 ID': document.getElementById('f_phone').value.trim(),
+    '過去三個月的重大事件與改變': document.getElementById('f_events').value.trim(),
+    '平均每日睡眠時間 (hr)': parseFloat(document.getElementById('f_sleep').value) || null,
+    '平均每週飲酒量': document.getElementById('f_alcohol').value,
+    '平均每週外食次數': document.getElementById('f_eating_out').value,
+    '平均每週運動習慣': document.getElementById('f_exercise').value,
+    '正念思考的習慣': document.getElementById('f_mindfulness').value,
+    '任何生理表徵相關，未在上述問題呈現 請在這裡列出：': document.getElementById('f_other_symptoms').value.trim(),
+    '平均每日飲水量 (mL)': parseFloat(document.getElementById('f_water').value) || null,
+    '平時飲食樣貌': document.getElementById('f_diet').value.trim(),
+    '藥品、保健品、蛋白粉': document.getElementById('f_supplements').value.trim(),
+    '補充說明': document.getElementById('f_notes').value.trim(),
+  };
+
+  // 加入所有症狀分數
+  Object.values(SYMPTOMS).flat().forEach(s => {
+    const val = getSymptomValue(s.id);
+    if(val !== null) fields[s.id] = val;
+  });
+
+  // 清除 null 欄位
+  Object.keys(fields).forEach(k => { if(fields[k] === null || fields[k] === '') delete fields[k]; });
+
+  try {
+    const res = await fetch(ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${AIRTABLE_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ fields })
+    });
+
+    if(res.ok) {
+      document.getElementById('page4').style.display = 'none';
+      document.querySelector('.progress-wrap').style.display = 'none';
+      document.getElementById('successPage').style.display = 'block';
+      window.scrollTo(0,0);
+    } else {
+      throw new Error('送出失敗');
+    }
+  } catch(e) {
+    document.getElementById('errSubmit').style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = '送出表單 ✓';
+  }
+}
+</script>
+</body>
+</html>
