@@ -108,9 +108,9 @@ input[type=number] { -moz-appearance: textfield; }
 <script>
 // 第一階段：直接連 Airtable
 // 第二階段：換成 Make.com Webhook 網址即可（只改 ENDPOINT 這一行）
-const AIRTABLE_TOKEN ='xxxxx'
-const BASE_ID       = 'xxxxx'    // 換成你的 Base ID
-const TABLE_ID      = 'xxxxx'    // 換成初診資料的 Table ID
+const AIRTABLE_TOKEN ='patPVchte5858T5VU'
+const BASE_ID       = 'appKLJK7eiXFYd8rN'    // 換成你的 Base ID
+const TABLE_ID      = 'tblUJioSCHqHnjEPU'    // 換成初診資料的 Table ID
 const ENDPOINT      = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}`
 // 第二階段換成：
 // const ENDPOINT = 'https://hook.eu2.make.com/xxxx'
@@ -149,8 +149,28 @@ const ENDPOINT      = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}`
     <input class="field-input" type="tel" id="f_phone" placeholder="09xxxxxxxx">
   </div>
   <div class="field-group">
+  <label class="field-label">性別</label>
+  <select class="field-select" id="f_gender">
+    <option value="">請選擇</option>
+    <option>生理女性</option>
+    <option>生理男性</option>
+  </select>
+ </div>
+ <div class="field-group">
+   <label class="field-label">年齡</label>
+   <input class="field-input" type="number" id="f_age" placeholder="例如：25">
+ </div>
+ <div class="field-group">
+   <label class="field-label">身高（cm）</label>
+   <input class="field-input" type="number" id="f_height" placeholder="例如：160">
+ </div>
+ <div class="field-group">
+   <label class="field-label">體重（kg）</label>
+   <input class="field-input" type="number" id="f_weight" placeholder="例如：55">
+ </div>
+  <div class="field-group">
     <label class="field-label">進入計畫的主要動機/目標？</label>
-    <textarea class="field-textarea" id="f_events" placeholder="可以更具體唷！例如減重是為了想要⋯"></textarea>
+    <textarea class="field-textarea" id="f_motivations" placeholder="可以更具體唷！例如減重是為了想要⋯"></textarea>
   </div>
 
   <div class="nav-row">
@@ -424,6 +444,7 @@ async function submitForm() {
   const fields = {
     '你的名字': document.getElementById('f_name').value.trim(),
     '用戶 ID': document.getElementById('f_phone').value.trim(),
+    '動機/計畫/目標': document.getElementById('f_motivations').value.trim(),  
     '過去三個月的重大事件與改變': document.getElementById('f_events').value.trim(),
     '平均每日睡眠時間 (hr)': parseFloat(document.getElementById('f_sleep').value) || null,
     '平均每週飲酒量': document.getElementById('f_alcohol').value,
