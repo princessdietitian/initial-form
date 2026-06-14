@@ -488,7 +488,9 @@ async function submitForm() {
       document.getElementById('successPage').style.display = 'block';
       window.scrollTo(0,0);
     } else {
-      throw new Error('送出失敗');
+  const errData = await res.json();
+  console.log('Airtable錯誤:', JSON.stringify(errData));
+  throw new Error('送出失敗');
     }
   } catch(e) {
     document.getElementById('errSubmit').style.display = 'block';
