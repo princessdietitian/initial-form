@@ -443,7 +443,23 @@ async function submitForm() {
   // 收集所有症狀
   const fields = {
     '你的名字': document.getElementById('f_name').value.trim(),
-    
+    '手機': document.getElementById('f_phone').value.trim(),
+    '性別': document.getElementById('f_gender').value,
+    '年齡': parseFloat(document.getElementById('f_age').value) || null,
+    '身高': parseFloat(document.getElementById('f_height').value) || null,
+    '體重': parseFloat(document.getElementById('f_weight').value) || null,
+    '動機/計畫/目標': document.getElementById('f_motivations').value.trim(),
+    '過去三個月的重大事件與改變': document.getElementById('f_events').value.trim(),
+    '平均每日睡眠時間 (hr)': parseFloat(document.getElementById('f_sleep').value) || null,
+    '平均每週飲酒量': document.getElementById('f_alcohol').value,
+    '平均每週外食次數': document.getElementById('f_eating_out').value,
+    '平均每週運動習慣': document.getElementById('f_exercise').value,
+    '正念思考的習慣': document.getElementById('f_mindfulness').value,
+    '任何生理表徵相關，未在上述問題呈現 請在這裡列出：': document.getElementById('f_other_symptoms').value.trim(),
+    '平均每日飲水量 (mL)': parseFloat(document.getElementById('f_water').value) || null,
+    '平時飲食樣貌': document.getElementById('f_diet').value.trim(),
+    '藥品、保健品、蛋白粉': document.getElementById('f_supplements').value.trim(),
+    '補充說明': document.getElementById('f_notes').value.trim(),
   };
 
   // 加入所有症狀分數
