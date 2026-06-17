@@ -24,7 +24,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:#F5F0E8;color:#3a3228;min-
 .step{flex:1;text-align:center;font-size:11px;color:#b0a898}
 .step.active{color:#4a5a2a;font-weight:600}
 .step.done{color:#7a9a3a}
-.step-dot{width:24px;height:24px;border-radius:50%;background:#e0d8c0;display:flex;align-items:center;justify-content:center;margin:0 auto 4px;font-size:11px;color:#b0a898}
+.step-dot{width:24px;height:24px;border-radius:50%;background:#e0d8c0;display:flex;align-items:center;justify-tent:center;margin:0 auto 4px;font-size:11px;color:#b0a898}
 .step.active .step-dot{background:#4a5a2a;color:white}
 .step.done .step-dot{background:#7a9a3a;color:white}
 .progress-bar{height:3px;background:#e0d8c0;border-radius:2px;max-width:480px;margin:8px auto 0}
@@ -54,7 +54,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:#F5F0E8;color:#3a3228;min-
 .scale-opt{flex:1;text-align:center}
 .scale-opt input{display:none}
 .scale-opt label{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 2px;border-radius:8px;transition:all .15s}
-.scale-opt label .dot{width:28px;height:28px;border-radius:50%;border:1.5px solid #d0c8b0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#b0a898;transition:all .15s}
+.scale-opt label .dot{width:28px;height:28px;border-radius:50%;border:1.5px solid #d0c8b0;display:flex;align-items:center;justify-tent:center;font-size:12px;font-weight:600;color:#b0a898;transition:all .15s}
 .scale-opt label .lbl{font-size:9px;color:#b0a898;line-height:1.2;text-align:center}
 .scale-opt input:checked + label .dot{background:#4a5a2a;border-color:#4a5a2a;color:white}
 .scale-opt input:checked + label .lbl{color:#4a5a2a;font-weight:600}
@@ -67,10 +67,10 @@ body{font-family:'Noto Sans TC',sans-serif;background:#F5F0E8;color:#3a3228;min-
 .scale-opt:nth-child(4) input:checked + label .dot{background:#8a5030}
 .scale-opt:nth-child(5) input:checked + label .dot{background:#7a3020}
 
-.scale-legend{display:flex;justify-content:space-between;font-size:10px;color:#b0a898;margin-bottom:8px;padding:0 2px}
+.scale-legend{display:flex;justify-tent:space-between;font-size:10px;color:#b0a898;margin-bottom:8px;padding:0 2px}
 
 /* ── NAV BUTTONS ── */
-.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:28px;gap:12px}
+.nav-row{display:flex;justify-tent:space-between;align-items:center;margin-top:28px;gap:12px}
 .btn-back{padding:12px 24px;border-radius:99px;border:1.5px solid #d0c8b0;background:white;color:#5a5040;font-size:14px;cursor:pointer;font-family:inherit}
 .btn-next{flex:1;padding:14px;border-radius:99px;border:none;background:#4a5a2a;color:white;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.5px}
 .btn-next:hover{background:#3a4a1a}
@@ -84,7 +84,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:#F5F0E8;color:#3a3228;min-
 
 /* ── SUCCESS ── */
 #successPage{display:none;max-width:480px;margin:0 auto;padding:60px 20px;text-align:center}
-.success-icon{font-size:56px;margin-bottom:16px}
+.success-i{font-size:56px;margin-bottom:16px}
 .success-title{font-size:22px;font-weight:700;color:#4a5a2a;margin-bottom:10px}
 .success-desc{font-size:15px;color:#7a6e5f;line-height:1.7}
 
@@ -108,7 +108,7 @@ input[type=number] { -moz-appearance: textfield; }
 <script>
 // 第一階段：直接連 Airtable
 // 第二階段換成：
-const ENDPOINT = 'https://hook.eu2.make.com/gut92aa2of9cy6qpvd6tr9cw0khcwkd2'
+st ENDPOINT = 'https://hook.eu2.make.com/gut92aa2of9cy6qpvd6tr9cw0khcwkd2'
 </script>
 
 <!-- HEADER -->
@@ -472,7 +472,7 @@ async function submitForm() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ fields })
+      body: JSON.stringify(fields)   // 注意：拿掉 { fields }，直接用 fields
     });
 
     if(res.ok) {
